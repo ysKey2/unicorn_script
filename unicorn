@@ -1,0 +1,84 @@
+#!/bin/sh
+
+# chkconfig: 2345 85 70
+# description: unicorn shell
+
+NAME="unicorn"
+ENV="production"
+
+ROOT_DIR="/var/www/app/current"
+USER="app"
+PID="${ROOT_DIR}/tmp/pids/unicorn.pid"
+CONF="${ROOT_DIR}/config/unicorn/${ENV}.rb"
+
+start()
+{
+  if [ -e $PID ]; then
+    echo "$NAME already started";
+    exit 1;
+  fi
+  echo "start $NAME";
+  su - $USER -c "cd $ROOT_DIR && bundle exec unicorn -c $CONF -E $ENV -D"
+}
+
+stop()
+{
+  if [ ! -e $PID ]; then
+    echo "$NAME not started";
+    exit 1;
+  fi
+  echo "stop $NAME";
+  su -c "kill -QUIT `cat ${PID}`" $USER
+  su -c "rm -f $PID" $USER
+}
+
+force_stop()
+{
+  if [ ! -e $PID ]; then
+    echo "$NAME not started";
+    exit 1;
+  fi
+  echo "stop $NAME";
+  su -c "kill -TERM `cat ${PID}`" $USER
+  su -c "rm -f $PID" $USER
+}
+
+reload()
+{
+  if [ ! -e $PID ]; then
+    echo "$NAME not started";
+    start
+    exit 0;
+  fi
+  echo "reload $NAME";
+  su -c "kill -HUP `cat ${PID}`" $USER
+}
+
+restart()
+{
+    stop
+    start
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  force-stop)
+    force_stop
+    ;;
+  reload)
+    reload
+    ;;
+  restart)
+    restart
+    ;;
+  *)
+    echo "Syntax Error: release [start|stop|force-stop|reload|restart]"
+    ;;
+esac
+
+exit
