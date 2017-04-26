@@ -1,0 +1,11 @@
+[Unit]
+Description=unicorn: Rack HTTP server for fast clients and Unix
+
+[Service]
+Type=simple
+ExecStart=/etc/init.d/unicorn start
+ExecReload=/etc/init.d/unicorn reload
+
+[Install]
+# run level3
+WantedBy=multi-user.target
