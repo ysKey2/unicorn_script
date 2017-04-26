@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# chkconfig: 2345 85 70
+# chkconfig: 2345 88 70
 # description: sidekiq shell
 
 NAME="sidekiq"
@@ -10,7 +10,7 @@ ROOT_DIR="/var/www/app/current"
 USER="app"
 PID="${ROOT_DIR}/tmp/pids/sidekiq-0.pid"
 CONF="${ROOT_DIR}/config/sidekiq.yml"
-SIDEKIQ_PROCESS=`ps aux | grep sidekiq | grep -v grep | wc -l`
+SIDEKIQ_PROCESS=`ps aux | grep sidekiq | grep busy | grep -v grep | wc -l`
 
 start()
 {
