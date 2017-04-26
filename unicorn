@@ -10,7 +10,7 @@ ROOT_DIR="/var/www/app/current"
 USER="app"
 PID="${ROOT_DIR}/tmp/pids/unicorn.pid"
 CONF="${ROOT_DIR}/config/unicorn/${ENV}.rb"
-UNICORN_PROCESS=`ps aux | grep unicorn | grep -v grep | wc -l`
+UNICORN_PROCESS=`ps aux | grep unicorn | grep config | grep -v grep | wc -l`
 
 start()
 {
