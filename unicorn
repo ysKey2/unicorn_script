@@ -10,12 +10,17 @@ ROOT_DIR="/var/www/app/current"
 USER="app"
 PID="${ROOT_DIR}/tmp/pids/unicorn.pid"
 CONF="${ROOT_DIR}/config/unicorn/${ENV}.rb"
+UNICORN_PROCESS=`ps aux | grep unicorn | grep -v grep | wc -l`
 
 start()
 {
   if [ -e $PID ]; then
-    echo "$NAME already started";
-    exit 1;
+    if [ $UNICORN_PROCESS = 0 ]; then
+      rm -f $PID
+    else
+      echo "$NAME already started";
+      exit 1;
+    fi
   fi
   echo "start $NAME";
   su - $USER -c "cd $ROOT_DIR && bundle exec unicorn -c $CONF -E $ENV -D"
@@ -28,8 +33,7 @@ stop()
     exit 1;
   fi
   echo "stop $NAME";
-  su -c "kill -QUIT `cat ${PID}`" $USER
-  su -c "rm -f $PID" $USER
+  kill -QUIT `cat ${PID}`
 }
 
 force_stop()
@@ -39,8 +43,7 @@ force_stop()
     exit 1;
   fi
   echo "stop $NAME";
-  su -c "kill -TERM `cat ${PID}`" $USER
-  su -c "rm -f $PID" $USER
+  kill -TERM `cat ${PID}`
 }
 
 reload()
@@ -51,7 +54,7 @@ reload()
     exit 0;
   fi
   echo "reload $NAME";
-  su -c "kill -HUP `cat ${PID}`" $USER
+  kill -HUP `cat ${PID}`
 }
 
 restart()

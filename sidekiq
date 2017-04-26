@@ -10,12 +10,17 @@ ROOT_DIR="/var/www/app/current"
 USER="app"
 PID="${ROOT_DIR}/tmp/pids/sidekiq-0.pid"
 CONF="${ROOT_DIR}/config/sidekiq.yml"
+SIDEKIQ_PROCESS=`ps aux | grep sidekiq | grep -v grep | wc -l`
 
 start()
 {
   if [ -e $PID ]; then
-    echo "$NAME already started";
-    exit 1;
+    if [ $SIDEKIQ_PROCESS = 0 ]; then
+      rm -f $PID
+    else
+      echo "$NAME already started";
+      exit 1;
+    fi
   fi
   echo "start $NAME";
   su - $USER -c "cd $ROOT_DIR && bundle exec sidekiq -C $CONF -P $PID -e $ENV -d"
@@ -28,8 +33,8 @@ stop()
     exit 1;
   fi
   echo "stop $NAME";
-  su - $USER -c "kill -QUIT `cat ${PID}`"
-  su - $USER -c "rm -f $PID"
+  kill -QUIT `cat ${PID}`
+  rm -f $PID
 }
 
 force_stop()
@@ -39,8 +44,8 @@ force_stop()
     exit 1;
   fi
   echo "stop $NAME";
-  su - $USER -c "kill -TERM `cat ${PID}`"
-  su - $USER -c "rm -f $PID" $USER
+  kill -TERM `cat ${PID}`
+  rm -f $PID
 }
 
 reload()
@@ -51,7 +56,7 @@ reload()
     exit 0;
   fi
   echo "reload $NAME";
-  su - $USER -c "kill -HUP `cat ${PID}`"
+  kill -HUP `cat ${PID}`
 }
 
 restart()
